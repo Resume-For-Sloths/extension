@@ -1,0 +1,25 @@
+{
+    "name": "ResFS",
+    "description": "An awesome extension that preps your resume for each job description.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "host_permissions":[
+        "*://*.resumeforsloths.info/*"
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "permissions": [
+		"activeTab", 
+		"scripting", 
+		"contextMenus",
+		"downloads",
+		"clipboardWrite",
+        "cookies",
+        "tabs"
+	],
+    "action": {
+      "default_icon": "icon.png"
+    }
+}

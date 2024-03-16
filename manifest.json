@@ -17,7 +17,8 @@
 		"downloads",
 		"clipboardWrite",
         "cookies",
-        "tabs"
+        "tabs",
+        "notifications"
 	],
     "action": {
       "default_icon": "icon.png"

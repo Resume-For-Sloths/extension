@@ -37,6 +37,8 @@ function extract_JD(){
 
 chrome.action.onClicked.addListener(async (tab) => {
 
+    console.log(tab.id)
+
     // Cookie Business
     const cookie_name = 'userdetails'
     const userdetails = await chrome.cookies.get({"url": domain, "name": cookie_name}).then((res) => decodeURIComponent(res.value));
@@ -64,7 +66,40 @@ chrome.action.onClicked.addListener(async (tab) => {
 
     // The three magic commands ❤️
     await fetch(backend+"/save-job-description", SaveJobPackage).then((r)=>r.text()).then((r)=>console.log(r))
-    await fetch(backend+"/run-python-script", RunScriptPackage).then((r)=>r.text()).then((r)=>console.log(r))
-    await chrome.tabs.create({url: `${backend}/download-resume?user=${user}&name=${name}`.toString()}) // hash user and name for safety?
+    // chrome.scripting.executeScript({target: {tabId: tab.id}, func: ()=>{alert('Generating Resume')}}).then((res) => res[0].result)
+    chrome.notifications.create("resfs_updates", {
+        title: "ResFS",
+        message: "Generating Resume",
+        iconUrl: 'icon.png',
+        type: 'basic'
+    })
 
+    // chrome.notifications.create("experimental", {
+    //     title: "Something",
+    //     message: "Generating Resume",
+    //     iconUrl: 'icon.png',
+    //     progress: 10,
+    //     type: 'progress'
+    // })
+
+    let result = await fetch(backend+"/run-python-script", RunScriptPackage).then((res) => res.text())
+
+    if (result == "Success"){
+        // await chrome.scripting.executeScript({target: {tabId: tab.id}, func: ()=>{alert('Resume Successfully Generated')}})
+        chrome.notifications.create("resfs_updates", {
+            title: "ResFS",
+            message: "Resume Successfully Generated",
+            iconUrl: 'icon.png',
+            type: 'basic'
+        })
+        await chrome.tabs.create({url: `${backend}/download-resume?user=${user}&name=${name}`.toString()})
+    }
+    else{
+        chrome.notifications.create("resfs_updates", {
+            title: "ResFS",
+            message: "Resume Generation Failed",
+            iconUrl: 'icon.png',
+            type: 'basic'
+        })
+    }
 })

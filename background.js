@@ -84,6 +84,8 @@ chrome.action.onClicked.addListener(async (tab) => {
 
     let result = await fetch(backend+"/run-python-script", RunScriptPackage).then((res) => res.text())
 
+    console.log(result)
+
     if (result == "Success"){
         // await chrome.scripting.executeScript({target: {tabId: tab.id}, func: ()=>{alert('Resume Successfully Generated')}})
         chrome.notifications.create("resfs_updates", {

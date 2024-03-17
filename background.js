@@ -66,13 +66,16 @@ chrome.action.onClicked.addListener(async (tab) => {
 
     // The three magic commands ❤️
     await fetch(backend+"/save-job-description", SaveJobPackage).then((r)=>r.text()).then((r)=>console.log(r))
-    // chrome.scripting.executeScript({target: {tabId: tab.id}, func: ()=>{alert('Generating Resume')}}).then((res) => res[0].result)
-    chrome.notifications.create("resfs_updates", {
-        title: "ResFS",
-        message: "Generating Resume",
-        iconUrl: 'icon.png',
-        type: 'basic'
-    })
+
+    // chrome.notifications.create("resfs_updates", {
+    //     title: "ResFS",
+    //     message: "Generating Resume",
+    //     iconUrl: 'icon.png',
+    //     type: 'basic'
+    // })
+
+    // let result = await fetch(backend+"/run-python-script", RunScriptPackage).then((res) => res.text())
+
 
     // chrome.notifications.create("experimental", {
     //     title: "Something",
@@ -82,13 +85,40 @@ chrome.action.onClicked.addListener(async (tab) => {
     //     type: 'progress'
     // })
 
-    let result = await fetch(backend+"/run-python-script", RunScriptPackage).then((res) => res.text())
+    const pcts = [5, 10, 20, 45, 70, 90]
+    const scripts = ['preamble', 'personal-details', 'education', 'work-experience', 'projects', 'skills']
+    let result = "Success"
+    let i = 0
+    for(; i < 6; i++){
+        console.log(i)
+        await chrome.notifications.create("resfs_updates", {
+                title: "ResFS",
+                message: `Generating Resume: ${scripts[i]}`,
+                iconUrl: 'icon.png',
+                progress: pcts[i],
+                type: 'progress'
+        })
+        result = await fetch(backend+`/scripts/${scripts[i]}`, RunScriptPackage).then((res) => res.text())
+        if (result!="Success"){
+            break
+        }
+    }
+    
 
     console.log(result)
 
     if (result == "Success"){
+
+        await chrome.notifications.create("resfs_updates", {
+            title: "ResFS",
+            message: "Generating Resume",
+            iconUrl: 'icon.png',
+            progress: 100,
+            type: 'progress'
+        })
+
         // await chrome.scripting.executeScript({target: {tabId: tab.id}, func: ()=>{alert('Resume Successfully Generated')}})
-        chrome.notifications.create("resfs_updates", {
+        await chrome.notifications.create("resfs_updates", {
             title: "ResFS",
             message: "Resume Successfully Generated",
             iconUrl: 'icon.png',
@@ -99,7 +129,7 @@ chrome.action.onClicked.addListener(async (tab) => {
     else{
         chrome.notifications.create("resfs_updates", {
             title: "ResFS",
-            message: "Resume Generation Failed",
+            message: `Cannot convert ${scripts[i]} section`,
             iconUrl: 'icon.png',
             type: 'basic'
         })

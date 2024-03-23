@@ -91,14 +91,14 @@ chrome.action.onClicked.addListener(async (tab) => {
     let i = 0
     for(; i < 6; i++){
         console.log(i)
-        await chrome.notifications.create("resfs_updates", {
-                title: "ResFS",
-                message: `Generating Resume: ${scripts[i]}`,
-                iconUrl: 'icon.png',
-                progress: pcts[i],
-                type: 'progress'
-        })
         result = await fetch(backend+`/scripts/${scripts[i]}`, RunScriptPackage).then((res) => res.text())
+        await chrome.notifications.create("resfs_updates", {
+            title: "ResFS",
+            message: `Generating Resume: ${scripts[i]}`,
+            iconUrl: 'icon.png',
+            progress: pcts[i],
+            type: 'progress'
+        })
         if (result!="Success"){
             break
         }
@@ -124,7 +124,10 @@ chrome.action.onClicked.addListener(async (tab) => {
             iconUrl: 'icon.png',
             type: 'basic'
         })
-        await chrome.tabs.create({url: `${backend}/download-resume?user=${user}&name=${name}`.toString()})
+        let download_window = await chrome.windows.create({url: `${backend}/download-resume?user=${user}&name=${name}`.toString()})
+        console.log(download_window)
+        await new Promise(r => setTimeout(r, 500));
+        await chrome.windows.remove(download_window.id)
     }
     else{
         chrome.notifications.create("resfs_updates", {
